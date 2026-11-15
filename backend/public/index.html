@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyFlow - Web Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .auth-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .button-group button {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .list {
+            list-style: none;
+        }
+        
+        .list li {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .list li:last-child {
+            border-bottom: none;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #e3f2fd;
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .task-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .task-item.high {
+            border-left-color: #f56565;
+        }
+        
+        .task-item.medium {
+            border-left-color: #ed8936;
+        }
+        
+        .task-item.low {
+            border-left-color: #48bb78;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .task-info p {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .task-actions button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 DailyFlow</h1>
+            <p>Smart Daily Planner & Productivity Manager</p>
+        </div>
+        
+        <div class="auth-section">
+            <div id="authContainer" style="display: none;">
+                <div class="form-group">
+                    <h3>Login</h3>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button onclick="handleLogin()">🔓 Login</button>
+                    <button onclick="showRegisterForm()">📝 Register</button>
+                </div>
+            </div>
+            
+            <div id="registerContainer" style="display: none;">
+                <div class="form-group">
+                    <h3>Create Account</h3>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="firstName" placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="lastName" placeholder="Last name">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="regPassword" placeholder="Password (min 6 chars)">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button onclick="handleRegister()">✅ Register</button>
+                    <button onclick="showLoginForm()">🔙 Back to Login</button>
+                </div>
+            </div>
+            
+            <div id="dashboardContainer" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Welcome, <span id="userName">User</span>! 👋</h2>
+                    <button onclick="handleLogout()">🚪 Logout</button>
+                </div>
+                
+                <div id="statusMessage" class="status-message"></div>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+                    <button class="tab-btn" onclick="switchTab('tasks')">✅ Tasks</button>
+                    <button class="tab-btn" onclick="switchTab('meetings')">📅 Meetings</button>
+                    <button class="tab-btn" onclick="switchTab('habits')">🎯 Habits</button>
+                </div>
+                
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="content-section active">
+                    <div class="grid">
+                        <div class="stat-card">
+                            <h2 id="completedCount">0</h2>
+                            <p>Tasks Completed</p>
+                        </div>
+                        <div class="stat-card">
+                            <h2 id="pendingCount">0</h2>
+                            <p>Pending Tasks</p>
+                        </div>
+                        <div class="stat-card">
+                            <h2 id="productivityRate">0%</h2>
+                            <p>Productivity Rate</p>
+                        </div>
+                        <div class="stat-card">
+                            <h2 id="meetingCount">0</h2>
+                            <p>Upcoming Meetings</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tasks Tab -->
+                <div id="tasks" class="content-section">
+                    <div class="form-group">
+                        <h3>Add New Task</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Task Title</label>
+                            <input type="text" id="taskTitle" placeholder="What do you need to do?">
+                        </div>
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select id="taskPriority" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="taskDesc" placeholder="Add details..." style="height: 80px;"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="datetime-local" id="startTime">
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="datetime-local" id="endTime">
+                        </div>
+                    </div>
+                    <button onclick="createTask()">➕ Add Task</button>
+                    
+                    <div style="margin-top: 30px;">
+                        <h3>Your Tasks</h3>
+                        <div id="tasksList"></div>
+                    </div>
+                </div>
+                
+                <!-- Meetings Tab -->
+                <div id="meetings" class="content-section">
+                    <div class="form-group">
+                        <h3>Schedule Meeting</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Meeting Title</label>
+                            <input type="text" id="meetingTitle" placeholder="Meeting title">
+                        </div>
+                        <div class="form-group">
+                            <label>Location/Link</label>
+                            <input type="text" id="meetingLocation" placeholder="Room or Zoom link">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="datetime-local" id="meetingStart">
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="datetime-local" id="meetingEnd">
+                        </div>
+                    </div>
+                    <button onclick="createMeeting()">📅 Create Meeting</button>
+                    
+                    <div style="margin-top: 30px;">
+                        <h3>Upcoming Meetings</h3>
+                        <div id="meetingsList"></div>
+                    </div>
+                </div>
+                
+                <!-- Habits Tab -->
+                <div id="habits" class="content-section">
+                    <div class="form-group">
+                        <h3>Create Habit</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Habit Name</label>
+                            <input type="text" id="habitName" placeholder="e.g., Morning Exercise">
+                        </div>
+                        <div class="form-group">
+                            <label>Frequency</label>
+                            <select id="habitFreq" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="daily" selected>Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="createHabit()">🎯 Create Habit</button>
+                    
+                    <div style="margin-top: 30px;">
+                        <h3>Your Habits</h3>
+                        <div id="habitsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentUser = null;
+        let token = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+        
+        function checkAuth() {
+            token = localStorage.getItem('token');
+            if (token) {
+                showDashboard();
+                loadDashboardData();
+            } else {
+                showLoginForm();
+            }
+        }
+        
+        function showLoginForm() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('registerContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'none';
+        }
+        
+        function showRegisterForm() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('registerContainer').style.display = 'block';
+            document.getElementById('dashboardContainer').style.display = 'none';
+        }
+        
+        function showDashboard() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('registerContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+        }
+        
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    token = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showDashboard();
+                    document.getElementById('userName').textContent = data.user.firstName;
+                    loadDashboardData();
+                } else {
+                    alert('Login failed: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function handleRegister() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (!firstName || !lastName || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName, lastName, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    token = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showDashboard();
+                    document.getElementById('userName').textContent = data.user.firstName;
+                    loadDashboardData();
+                } else {
+                    alert('Registration failed: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            token = null;
+            currentUser = null;
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            showLoginForm();
+        }
+        
+        async function loadDashboardData() {
+            try {
+                // Load stats
+                const statsRes = await fetch(`${API_URL}/tasks/statistics`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const stats = await statsRes.json();
+                
+                if (stats.success) {
+                    document.getElementById('completedCount').textContent = stats.data.completedTasks;
+                    document.getElementById('pendingCount').textContent = stats.data.pendingTasks;
+                    document.getElementById('productivityRate').textContent = stats.data.completionPercentage + '%';
+                }
+                
+                // Load meetings
+                const meetingsRes = await fetch(`${API_URL}/meetings/upcoming`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const meetings = await meetingsRes.json();
+                if (meetings.success) {
+                    document.getElementById('meetingCount').textContent = meetings.data.length;
+                }
+                
+                // Load tasks
+                loadTasks();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tasksList = document.getElementById('tasksList');
+                    tasksList.innerHTML = '';
+                    
+                    data.data.forEach(task => {
+                        const taskEl = document.createElement('div');
+                        taskEl.className = `task-item ${task.priority}`;
+                        taskEl.innerHTML = `
+                            <div class="task-info">
+                                <h4>${task.title}</h4>
+                                <p>${new Date(task.startTime).toLocaleString()}</p>
+                            </div>
+                            <div class="task-actions">
+                                <button onclick="toggleTask('${task._id}', ${!task.completed})">${task.completed ? '↩️' : '✓'}</button>
+                                <button onclick="deleteTask('${task._id}')" style="background: #f56565;">🗑️</button>
+                            </div>
+                        `;
+                        tasksList.appendChild(taskEl);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+        
+        async function createTask() {
+            const title = document.getElementById('taskTitle').value;
+            const priority = document.getElementById('taskPriority').value;
+            const description = document.getElementById('taskDesc').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            if (!title || !startTime || !endTime) {
+                alert('Please fill in required fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        priority,
+                        startTime,
+                        endTime
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('taskTitle').value = '';
+                    document.getElementById('taskDesc').value = '';
+                    document.getElementById('startTime').value = '';
+                    document.getElementById('endTime').value = '';
+                    showMessage('Task created successfully!', 'success');
+                    loadTasks();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to create task'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function toggleTask(taskId, completed) {
+            try {
+                const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ completed })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadTasks();
+                    loadDashboardData();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        async function deleteTask(taskId) {
+            if (!confirm('Delete this task?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    loadTasks();
+                    loadDashboardData();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        async function createMeeting() {
+            const title = document.getElementById('meetingTitle').value;
+            const location = document.getElementById('meetingLocation').value;
+            const startTime = document.getElementById('meetingStart').value;
+            const endTime = document.getElementById('meetingEnd').value;
+            const date = new Date(startTime).toISOString().split('T')[0];
+            
+            if (!title || !startTime || !endTime) {
+                alert('Please fill in required fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/meetings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title,
+                        location,
+                        startTime,
+                        endTime,
+                        date
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('meetingTitle').value = '';
+                    document.getElementById('meetingLocation').value = '';
+                    document.getElementById('meetingStart').value = '';
+                    document.getElementById('meetingEnd').value = '';
+                    showMessage('Meeting created!', 'success');
+                    loadMeetings();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to create meeting'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function loadMeetings() {
+            try {
+                const response = await fetch(`${API_URL}/meetings/upcoming`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const meetingsList = document.getElementById('meetingsList');
+                    meetingsList.innerHTML = '';
+                    
+                    data.data.forEach(meeting => {
+                        const meetEl = document.createElement('div');
+                        meetEl.className = 'card';
+                        meetEl.innerHTML = `
+                            <h3>${meeting.title}</h3>
+                            <p>📍 ${meeting.location || 'TBA'}</p>
+                            <p>⏰ ${new Date(meeting.startTime).toLocaleString()}</p>
+                        `;
+                        meetingsList.appendChild(meetEl);
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        async function createHabit() {
+            const name = document.getElementById('habitName').value;
+            const frequency = document.getElementById('habitFreq').value;
+            
+            if (!name) {
+                alert('Please enter habit name');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/habits`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name,
+                        frequency
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('habitName').value = '';
+                    showMessage('Habit created!', 'success');
+                    loadHabits();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to create habit'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function loadHabits() {
+            try {
+                const response = await fetch(`${API_URL}/habits`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const habitsList = document.getElementById('habitsList');
+                    habitsList.innerHTML = '';
+                    
+                    data.data.forEach(habit => {
+                        const habitEl = document.createElement('div');
+                        habitEl.className = 'card';
+                        habitEl.innerHTML = `
+                            <h3>${habit.name}</h3>
+                            <p>Frequency: <span class="badge">${habit.frequency}</span></p>
+                        `;
+                        habitsList.appendChild(habitEl);
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        function switchTab(tabName) {
+            // Hide all
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show selected
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load data
+            if (tabName === 'tasks') loadTasks();
+            if (tabName === 'meetings') loadMeetings();
+            if (tabName === 'habits') loadHabits();
+        }
+        
+        function showMessage(msg, type) {
+            const msgEl = document.getElementById('statusMessage');
+            msgEl.textContent = msg;
+            msgEl.className = `status-message ${type}`;
+            setTimeout(() => {
+                msgEl.className = 'status-message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+  "name": "dailyflow-mobile",
+  "version": "1.0.0",
+  "description": "DailyFlow - Smart Daily Planner & Productivity Manager",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "dev": "expo start --clear",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "eject": "expo eject",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "keywords": [
+    "productivity",
+    "planner",
+    "daily",
+    "mobile"
+  ],
+  "author": "DailyFlow Team",
+  "license": "MIT",
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/datetimepicker": "^9.3.0",
+    "@tanstack/react-query": "^5.0.0",
+    "axios": "^1.5.0",
+    "dayjs": "^1.11.10",
+    "expo": "~58.0.0",
+    "expo-calendar": "~58.0.7",
+    "expo-linking": "~58.0.17",
+    "expo-notifications": "~58.1.9",
+    "expo-router": "~58.0.31",
+    "expo-secure-store": "~58.0.3",
+    "expo-splash-screen": "~58.0.14",
+    "expo-status-bar": "~58.0.5",
+    "nativewind": "^2.0.11",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-gesture-handler": "~3.3.0",
+    "react-native-reanimated": "4.7.1",
+    "react-native-safe-area-context": "^5.11.1",
+    "react-native-svg": "15.16.0",
+    "react-native-worklets-core": "^1.6.3",
+    "zustand": "^4.4.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@babel/plugin-transform-private-methods": "^7.29.7",
+    "@types/react": "~19.3.0",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "eslint": "^8.51.0",
+    "jest": "~30.5.2",
+    "minimatch": "^3.1.5",
+    "tailwindcss": "^3.3.0",
+    "typescript": "~6.0.3"
+  },
+  "overrides": {
+    "tar": "7.5.21",
+    "react-native-worklets": "npm:react-native-worklets-core@^1.6.3"
+  }
+}
