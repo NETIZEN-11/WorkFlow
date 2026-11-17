@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../src/store/authStore';
 import { useTheme } from '../../../src/contexts/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../../src/utils/api';
 import dayjs from 'dayjs';
 import { useEffect, useState, useMemo } from 'react';
@@ -75,364 +76,478 @@ export default function DashboardScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.backgroundSecondary }]} edges={['top']}>
-      <ScrollView 
-        style={[styles.container, { backgroundColor: themeColors.backgroundSecondary }]} 
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Gradient Header */}
-        <View style={styles.headerGradient}>
+    <View style={styles.container}>
+      {/* Gradient Background */}
+      <LinearGradient
+        colors={['#667eea', '#764ba2', '#f093fb']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Modern Header */}
           <View style={styles.header}>
-            <View>
+            <View style={styles.headerLeft}>
               <Text style={styles.greeting}>{getGreeting}</Text>
-              <Text style={styles.userName}>{user?.firstName} {user?.lastName}</Text>
+              <Text style={styles.userName}>{user?.firstName || 'User'}</Text>
             </View>
             <TouchableOpacity 
               style={styles.profileButton}
               onPress={() => router.push('/(app)/profile')}
             >
-              <Text style={styles.profileInitial}>
-                {user?.firstName?.[0]}{user?.lastName?.[0]}
-              </Text>
+              <LinearGradient
+                colors={['#FF6B9D', '#C06CC3']}
+                style={styles.profileGradient}
+              >
+                <Text style={styles.profileInitial}>
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
 
-          {/* Live Clock Card */}
-          <View style={styles.clockCard}>
-            <Text style={styles.dateText}>{dayjs().format('dddd, MMMM D, YYYY')}</Text>
-            <Text style={styles.clock}>{now.format('HH:mm:ss')}</Text>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${completionRate}%` }]} />
-            </View>
-            <Text style={styles.progressText}>
-              {completionRate}% Daily Progress
-            </Text>
-          </View>
-        </View>
-
-        {/* Quick Stats Grid */}
-        <View style={styles.statsContainer}>
-          <View style={styles.sectionTitle}>
-            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>📊 Today's Overview</Text>
-          </View>
-          <View style={styles.statsGrid}>
-            <View style={[styles.statCard, styles.statCardBlue]}>
-              <Text style={styles.statIcon}>✅</Text>
-              <Text style={styles.statNumber}>{completedTodayCount}</Text>
-              <Text style={styles.statLabel}>Completed</Text>
-            </View>
-            <View style={[styles.statCard, styles.statCardOrange]}>
-              <Text style={styles.statIcon}>⏳</Text>
-              <Text style={styles.statNumber}>{pendingTodayCount}</Text>
-              <Text style={styles.statLabel}>Pending</Text>
-            </View>
-            <View style={[styles.statCard, styles.statCardGreen]}>
-              <Text style={styles.statIcon}>🎯</Text>
-              <Text style={styles.statNumber}>{taskStats?.totalTasks || 0}</Text>
-              <Text style={styles.statLabel}>Total Tasks</Text>
-            </View>
-            <View style={[styles.statCard, styles.statCardPurple]}>
-              <Text style={styles.statIcon}>📅</Text>
-              <Text style={styles.statNumber}>{upcomingMeetings?.length || 0}</Text>
-              <Text style={styles.statLabel}>Meetings</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
-          <View style={styles.quickActionsGrid}>
-            <TouchableOpacity 
-              style={styles.actionCard}
-              onPress={() => router.push('/(app)/(home)/add-task')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#DBEAFE' }]}>
-                <Text style={styles.actionEmoji}>➕</Text>
-              </View>
-              <Text style={styles.actionText}>Add Task</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.actionCard}
-              onPress={() => router.push('./add-meeting')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#FEE2E2' }]}>
-                <Text style={styles.actionEmoji}>📅</Text>
-              </View>
-              <Text style={styles.actionText}>Schedule</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.actionCard}
-              onPress={() => router.push('/(app)/focus')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#D1FAE5' }]}>
-                <Text style={styles.actionEmoji}>⏱️</Text>
-              </View>
-              <Text style={styles.actionText}>Focus</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.actionCard}
-              onPress={() => router.push('/(app)/calendar')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={styles.actionEmoji}>📆</Text>
-              </View>
-              <Text style={styles.actionText}>Calendar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Today's Tasks */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>📝 Today's Tasks</Text>
-            <TouchableOpacity onPress={() => router.push('/(app)/planner')}>
-              <Text style={styles.viewAllText}>View All →</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.tasksContainer}>
-            {todaysTasks && todaysTasks.length > 0 ? (
-              todaysTasks.slice(0, 4).map((task: any) => (
-                <View key={task._id} style={styles.taskCard}>
-                  <View style={styles.taskHeader}>
-                    <View style={[
-                      styles.priorityBadge,
-                      { backgroundColor: 
-                        task.priority === 'high' ? '#FEE2E2' : 
-                        task.priority === 'medium' ? '#FEF3C7' : '#DBEAFE'
-                      }
-                    ]}>
-                      <Text style={[
-                        styles.priorityText,
-                        { color: 
-                          task.priority === 'high' ? '#DC2626' : 
-                          task.priority === 'medium' ? '#F59E0B' : '#2563EB'
-                        }
-                      ]}>
-                        {task.priority?.toUpperCase() || 'LOW'}
-                      </Text>
-                    </View>
-                    <View style={[
-                      styles.statusDot,
-                      { backgroundColor: task.completed ? '#10B981' : '#F59E0B' }
-                    ]} />
-                  </View>
-                  <Text style={styles.taskTitle} numberOfLines={2}>{task.title}</Text>
-                  <View style={styles.taskFooter}>
-                    <Text style={styles.taskTime}>
-                      🕐 {dayjs(task.startTime).format('HH:mm')} - {dayjs(task.endTime).format('HH:mm')}
-                    </Text>
-                    <Text style={[
-                      styles.taskStatus,
-                      { color: task.completed ? '#10B981' : '#F59E0B' }
-                    ]}>
-                      {task.completed ? '✓ Done' : '○ Pending'}
-                    </Text>
-                  </View>
+          {/* Glassmorphism Clock Card */}
+          <View style={styles.glassCard}>
+            <View style={styles.glassCardInner}>
+              <Text style={styles.dateText}>{dayjs().format('dddd, MMMM D')}</Text>
+              <Text style={styles.clock}>{now.format('HH:mm')}</Text>
+              <Text style={styles.secondsText}>{now.format('ss')}</Text>
+              
+              <View style={styles.progressContainer}>
+                <View style={styles.progressBarGlass}>
+                  <View style={[styles.progressFillGlass, { width: `${completionRate}%` }]} />
                 </View>
-              ))
-            ) : (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyEmoji}>📭</Text>
-                <Text style={styles.emptyText}>No tasks scheduled for today</Text>
+                <Text style={styles.progressTextGlass}>
+                  {completionRate}% Complete
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Curved Stats Section */}
+          <View style={styles.statsSection}>
+            <Text style={styles.sectionTitleWhite}>Today's Overview</Text>
+            <View style={styles.statsGrid}>
+              <View style={styles.statCardModern}>
+                <LinearGradient
+                  colors={['#4facfe', '#00f2fe']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.statGradient}
+                >
+                  <Text style={styles.statIconLarge}>✓</Text>
+                  <Text style={styles.statNumberWhite}>{completedTodayCount}</Text>
+                  <Text style={styles.statLabelWhite}>Completed</Text>
+                </LinearGradient>
+              </View>
+
+              <View style={styles.statCardModern}>
+                <LinearGradient
+                  colors={['#fa709a', '#fee140']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.statGradient}
+                >
+                  <Text style={styles.statIconLarge}>⏳</Text>
+                  <Text style={styles.statNumberWhite}>{pendingTodayCount}</Text>
+                  <Text style={styles.statLabelWhite}>Pending</Text>
+                </LinearGradient>
+              </View>
+
+              <View style={styles.statCardModern}>
+                <LinearGradient
+                  colors={['#a8edea', '#fed6e3']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.statGradient}
+                >
+                  <Text style={styles.statIconLarge}>🎯</Text>
+                  <Text style={styles.statNumberWhite}>{taskStats?.totalTasks || 0}</Text>
+                  <Text style={styles.statLabelWhite}>Total</Text>
+                </LinearGradient>
+              </View>
+
+              <View style={styles.statCardModern}>
+                <LinearGradient
+                  colors={['#fccb90', '#d57eeb']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.statGradient}
+                >
+                  <Text style={styles.statIconLarge}>📅</Text>
+                  <Text style={styles.statNumberWhite}>{upcomingMeetings?.length || 0}</Text>
+                  <Text style={styles.statLabelWhite}>Meetings</Text>
+                </LinearGradient>
+              </View>
+            </View>
+          </View>
+
+          {/* White Content Section */}
+          <View style={styles.whiteSection}>
+            {/* Quick Actions */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
+              </View>
+              <View style={styles.quickActionsGrid}>
                 <TouchableOpacity 
-                  style={styles.addButton}
+                  style={styles.actionCardNew}
                   onPress={() => router.push('/(app)/(home)/add-task')}
                 >
-                  <Text style={styles.addButtonText}>+ Add Your First Task</Text>
+                  <LinearGradient
+                    colors={['#667eea', '#764ba2']}
+                    style={styles.actionIconNew}
+                  >
+                    <Text style={styles.actionEmojiNew}>➕</Text>
+                  </LinearGradient>
+                  <Text style={styles.actionTextNew}>Add Task</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.actionCardNew}
+                  onPress={() => router.push('./add-meeting')}
+                >
+                  <LinearGradient
+                    colors={['#f093fb', '#f5576c']}
+                    style={styles.actionIconNew}
+                  >
+                    <Text style={styles.actionEmojiNew}>📅</Text>
+                  </LinearGradient>
+                  <Text style={styles.actionTextNew}>Meeting</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.actionCardNew}
+                  onPress={() => router.push('/(app)/focus')}
+                >
+                  <LinearGradient
+                    colors={['#4facfe', '#00f2fe']}
+                    style={styles.actionIconNew}
+                  >
+                    <Text style={styles.actionEmojiNew}>⏱️</Text>
+                  </LinearGradient>
+                  <Text style={styles.actionTextNew}>Focus</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.actionCardNew}
+                  onPress={() => router.push('/(app)/calendar')}
+                >
+                  <LinearGradient
+                    colors={['#fa709a', '#fee140']}
+                    style={styles.actionIconNew}
+                  >
+                    <Text style={styles.actionEmojiNew}>📆</Text>
+                  </LinearGradient>
+                  <Text style={styles.actionTextNew}>Calendar</Text>
                 </TouchableOpacity>
               </View>
-            )}
-          </View>
-        </View>
+            </View>
 
-        {/* Upcoming Meetings */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>🎬 Upcoming Meetings</Text>
-            <TouchableOpacity onPress={() => router.push('/(app)/calendar')}>
-              <Text style={styles.viewAllText}>View All →</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.meetingsContainer}>
-            {upcomingMeetings && upcomingMeetings.length > 0 ? (
-              upcomingMeetings.slice(0, 3).map((meeting: any) => (
-                <View key={meeting._id} style={styles.meetingCard}>
-                  <View style={styles.meetingIcon}>
-                    <Text style={styles.meetingIconText}>📹</Text>
-                  </View>
-                  <View style={styles.meetingContent}>
-                    <Text style={styles.meetingTitle} numberOfLines={1}>{meeting.title}</Text>
-                    <Text style={styles.meetingTime}>
-                      📅 {dayjs(meeting.startTime).format('MMM D, YYYY')} at {dayjs(meeting.startTime).format('HH:mm')}
-                    </Text>
-                  </View>
-                </View>
-              ))
-            ) : (
-              <View style={styles.emptyStateMini}>
-                <Text style={styles.emptyTextMini}>No upcoming meetings</Text>
+            {/* Today's Tasks */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>📝 Today's Tasks</Text>
+                <TouchableOpacity onPress={() => router.push('/(app)/planner')}>
+                  <LinearGradient
+                    colors={['#667eea', '#764ba2']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.viewAllButton}
+                  >
+                    <Text style={styles.viewAllTextNew}>View All →</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
-            )}
-          </View>
-        </View>
+              <View style={styles.tasksContainer}>
+                {todaysTasks && todaysTasks.length > 0 ? (
+                  todaysTasks.slice(0, 4).map((task: any) => (
+                    <View key={task._id} style={styles.taskCardNew}>
+                      <View style={styles.taskLeftStripe} />
+                      <View style={styles.taskContent}>
+                        <View style={styles.taskHeader}>
+                          <View style={[
+                            styles.priorityBadgeNew,
+                            { 
+                              backgroundColor: 
+                                task.priority === 'high' ? 'rgba(239, 68, 68, 0.1)' : 
+                                task.priority === 'medium' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)'
+                            }
+                          ]}>
+                            <Text style={[
+                              styles.priorityTextNew,
+                              { 
+                                color: 
+                                  task.priority === 'high' ? '#ef4444' : 
+                                  task.priority === 'medium' ? '#f59e0b' : '#3b82f6'
+                              }
+                            ]}>
+                              {task.priority?.toUpperCase() || 'LOW'}
+                            </Text>
+                          </View>
+                          <View style={[
+                            styles.statusDotNew,
+                            { backgroundColor: task.completed ? '#10b981' : '#f59e0b' }
+                          ]} />
+                        </View>
+                        <Text style={styles.taskTitleNew} numberOfLines={2}>{task.title}</Text>
+                        <View style={styles.taskFooter}>
+                          <Text style={styles.taskTimeNew}>
+                            🕐 {dayjs(task.startTime).format('HH:mm')} - {dayjs(task.endTime).format('HH:mm')}
+                          </Text>
+                          <Text style={[
+                            styles.taskStatusNew,
+                            { color: task.completed ? '#10b981' : '#f59e0b' }
+                          ]}>
+                            {task.completed ? '✓ Done' : '○ Pending'}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <View style={styles.emptyStateNew}>
+                    <Text style={styles.emptyEmojiNew}>📭</Text>
+                    <Text style={styles.emptyTextNew}>No tasks for today</Text>
+                    <TouchableOpacity 
+                      onPress={() => router.push('/(app)/(home)/add-task')}
+                    >
+                      <LinearGradient
+                        colors={['#667eea', '#764ba2']}
+                        style={styles.addButtonNew}
+                      >
+                        <Text style={styles.addButtonTextNew}>+ Add Task</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            </View>
 
-        {/* Bottom Spacing */}
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-    </SafeAreaView>
+            {/* Upcoming Meetings */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>🎬 Upcoming Meetings</Text>
+                <TouchableOpacity onPress={() => router.push('/(app)/calendar')}>
+                  <LinearGradient
+                    colors={['#f093fb', '#f5576c']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.viewAllButton}
+                  >
+                    <Text style={styles.viewAllTextNew}>View All →</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.meetingsContainer}>
+                {upcomingMeetings && upcomingMeetings.length > 0 ? (
+                  upcomingMeetings.slice(0, 3).map((meeting: any) => (
+                    <View key={meeting._id} style={styles.meetingCardNew}>
+                      <LinearGradient
+                        colors={['#4facfe', '#00f2fe']}
+                        style={styles.meetingIconNew}
+                      >
+                        <Text style={styles.meetingIconTextNew}>📹</Text>
+                      </LinearGradient>
+                      <View style={styles.meetingContentNew}>
+                        <Text style={styles.meetingTitleNew} numberOfLines={1}>{meeting.title}</Text>
+                        <Text style={styles.meetingTimeNew}>
+                          📅 {dayjs(meeting.startTime).format('MMM D')} at {dayjs(meeting.startTime).format('HH:mm')}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <View style={styles.emptyStateMini}>
+                    <Text style={styles.emptyTextMini}>No upcoming meetings</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Bottom Spacing */}
+            <View style={styles.bottomSpacer} />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     paddingBottom: 100,
-  },
-  headerGradient: {
-    backgroundColor: '#3B82F6',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+  },
+  headerLeft: {
+    flex: 1,
   },
   greeting: {
-    fontSize: 16,
-    color: '#DBEAFE',
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 4,
+    fontWeight: '500',
   },
   userName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
   profileButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  profileGradient: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   profileInitial: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#3B82F6',
+    color: '#FFFFFF',
   },
-  clockCard: {
+  glassCard: {
+    marginHorizontal: 24,
+    borderRadius: 24,
+    overflow: 'hidden',
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 16,
-    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  glassCardInner: {
+    padding: 24,
     alignItems: 'center',
   },
   dateText: {
-    fontSize: 13,
-    color: '#DBEAFE',
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
     marginBottom: 8,
+    fontWeight: '500',
   },
   clock: {
-    fontSize: 42,
+    fontSize: 56,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 16,
+    letterSpacing: 2,
   },
-  progressBar: {
-    width: '100%',
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#10B981',
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#FFFFFF',
+  secondsText: {
+    fontSize: 24,
+    color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '600',
+    marginTop: -8,
+    marginBottom: 20,
   },
-  statsContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
+  progressContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
-  sectionTitle: {
-    fontSize: 18,
+  progressBarGlass: {
+    width: '100%',
+    height: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  progressFillGlass: {
+    height: '100%',
+    backgroundColor: '#4ade80',
+    borderRadius: 10,
+  },
+  progressTextGlass: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  statsSection: {
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 20,
+  },
+  sectionTitleWhite: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#1E293B',
+    color: '#FFFFFF',
     marginBottom: 16,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 14,
   },
-  statCard: {
+  statCardModern: {
     flex: 0.48,
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 8,
   },
-  statCardBlue: {
-    backgroundColor: '#EFF6FF',
+  statGradient: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 130,
   },
-  statCardOrange: {
-    backgroundColor: '#FFF7ED',
+  statIconLarge: {
+    fontSize: 36,
+    marginBottom: 10,
   },
-  statCardGreen: {
-    backgroundColor: '#F0FDF4',
-  },
-  statCardPurple: {
-    backgroundColor: '#FAF5FF',
-  },
-  statIcon: {
-    fontSize: 28,
-    marginBottom: 8,
-  },
-  statNumber: {
-    fontSize: 28,
+  statNumberWhite: {
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#1E293B',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#64748B',
-    textAlign: 'center',
-    fontWeight: '500',
+  statLabelWhite: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '600',
+  },
+  whiteSection: {
+    backgroundColor: '#F8FAFC',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    marginTop: 20,
+    paddingTop: 8,
   },
   section: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 24,
   },
   sectionHeader: {
@@ -441,56 +556,72 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  viewAllText: {
-    fontSize: 14,
-    color: '#3B82F6',
-    fontWeight: '600',
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1E293B',
+  },
+  viewAllButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  viewAllTextNew: {
+    fontSize: 13,
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
   quickActionsGrid: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
   },
-  actionCard: {
+  actionCardNew: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
-  actionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  actionIconNew: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  actionEmoji: {
-    fontSize: 24,
+  actionEmojiNew: {
+    fontSize: 28,
   },
-  actionText: {
-    fontSize: 12,
-    fontWeight: '600',
+  actionTextNew: {
+    fontSize: 13,
+    fontWeight: '700',
     color: '#475569',
     textAlign: 'center',
   },
   tasksContainer: {
-    gap: 12,
+    gap: 14,
   },
-  taskCard: {
+  taskCardNew: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    flexDirection: 'row',
+  },
+  taskLeftStripe: {
+    width: 5,
+    backgroundColor: '#667eea',
+  },
+  taskContent: {
+    flex: 1,
+    padding: 18,
   },
   taskHeader: {
     flexDirection: 'row',
@@ -498,121 +629,124 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  priorityBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  priorityBadgeNew: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 12,
   },
-  priorityText: {
+  priorityTextNew: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
-  statusDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+  statusDotNew: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
   },
-  taskTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+  taskTitleNew: {
+    fontSize: 17,
+    fontWeight: '700',
     color: '#1E293B',
     marginBottom: 12,
-    lineHeight: 22,
+    lineHeight: 24,
   },
   taskFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  taskTime: {
+  taskTimeNew: {
     fontSize: 13,
     color: '#64748B',
+    fontWeight: '500',
   },
-  taskStatus: {
+  taskStatusNew: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   meetingsContainer: {
-    gap: 12,
+    gap: 14,
   },
-  meetingCard: {
+  meetingCardNew: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 18,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  meetingIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#EFF6FF',
+  meetingIconNew: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
   },
-  meetingIconText: {
-    fontSize: 24,
+  meetingIconTextNew: {
+    fontSize: 28,
   },
-  meetingContent: {
+  meetingContentNew: {
     flex: 1,
   },
-  meetingTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+  meetingTitleNew: {
+    fontSize: 16,
+    fontWeight: '700',
     color: '#1E293B',
     marginBottom: 6,
   },
-  meetingTime: {
+  meetingTimeNew: {
     fontSize: 13,
     color: '#64748B',
+    fontWeight: '500',
   },
-  emptyState: {
+  emptyStateNew: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 32,
+    borderRadius: 20,
+    padding: 40,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  emptyEmoji: {
-    fontSize: 48,
+  emptyEmojiNew: {
+    fontSize: 56,
     marginBottom: 16,
   },
-  emptyText: {
-    fontSize: 15,
+  emptyTextNew: {
+    fontSize: 16,
     color: '#64748B',
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: 'center',
+    fontWeight: '500',
   },
-  addButton: {
-    backgroundColor: '#3B82F6',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
+  addButtonNew: {
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 16,
   },
-  addButtonText: {
+  addButtonTextNew: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
   },
   emptyStateMini: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 24,
+    padding: 28,
     alignItems: 'center',
   },
   emptyTextMini: {
     fontSize: 14,
     color: '#94A3B8',
+    fontWeight: '500',
   },
   bottomSpacer: {
     height: 40,
